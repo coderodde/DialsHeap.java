@@ -14,14 +14,14 @@ import java.util.NoSuchElementException;
  * @version 1.0.0 (May 10, 2024)
  * @since 1.0.0
  */
-public class DialsHeap<D> implements Iterable<D>, Cloneable {
+public class CachedDialsHeap<D> implements Iterable<D>, Cloneable {
     
     /**
      * This static inner class implements the node type for this heap.
      * 
      * @param <D> the satellite data type.
      */
-    private static final class DialsHeapNode<D> {
+    private static final class CachedDialsHeapNode<D> {
         
         /**
          * The actual satellite datum.
@@ -37,13 +37,13 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
          * The previous node in the collision chain or {@code null} if this node
          * is the head of the collision chain.
          */
-        DialsHeapNode<D> prev;
+        CachedDialsHeapNode<D> prev;
         
         /**
          * The next node in the collision chain or {@code null} if this node is
          * the tail of the collision chain.
          */
-        DialsHeapNode<D> next;
+        CachedDialsHeapNode<D> next;
         
         /**
          * Constructs a new heap node.'
@@ -51,7 +51,7 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
          * @param datum    the satellite datum.
          * @param priority the priority key.
          */
-        DialsHeapNode(final D datum, final int priority) {
+        CachedDialsHeapNode(final D datum, final int priority) {
             this.datum = datum;
             this.priority = priority;
         }
@@ -61,7 +61,7 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
      * This inner class implements the iterator over all satellite data in this
      * heap in the ascending priority key order.
      */
-    private final class DialsHeapIterator implements Iterator<D> {
+    private final class CachedDialsHeapIterator implements Iterator<D> {
 
         /**
          * Caches the number of nodes already iterated.
@@ -71,14 +71,14 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
         /**
          * The current heap node.
          */
-        private DialsHeapNode<D> currentDialsHeapNode;
+        private CachedDialsHeapNode<D> currentDialsHeapNode;
         
         /**
          * Constructs a new iterator over the enclosing heap.
          */
-        private DialsHeapIterator() {
+        private CachedDialsHeapIterator() {
             // Attempt to find the head node:
-            for (final DialsHeapNode<D> headNode : table) {
+            for (final CachedDialsHeapNode<D> headNode : table) {
                 if (headNode != null) {
                     currentDialsHeapNode = headNode;
                     return;
@@ -117,7 +117,7 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
          * 
          * @return the next heap node in the iteration order.
          */
-        private DialsHeapNode<D> computeNextDialsHeapNode() {
+        private CachedDialsHeapNode<D> computeNextDialsHeapNode() {
             if (iterated == size) {
                 // Once here, iteration is complete.
                 return null;
@@ -153,12 +153,12 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
     /**
      * The table mapping each slot to the head of a collision chain.
      */
-    private DialsHeapNode<D>[] table;
+    private CachedDialsHeapNode<D>[] table;
     
     /**
      * The map mapping the satellite datums to their respective heap nodes.
      */
-    private final Map<D, DialsHeapNode<D>> nodeMap = new HashMap<>();
+    private final Map<D, CachedDialsHeapNode<D>> nodeMap = new HashMap<>();
     
     /**
      * Caches the number of satellite datums in this heap.
@@ -166,19 +166,26 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
     private int size = 0;
     
     /**
+     * Caches the minimum priority so that {@link #extractMinimum()} and
+     * {@link #minimumNode()} and {@link #minimumPriority()} run in constant 
+     * time.
+     */
+    private int minimumPriority = Integer.MAX_VALUE;
+    
+    /**
      * Constructs a heap with {@code tableCapacity} as the capacity of the 
      * internal collision chain table.
      * 
      * @param tableCapacity the requested collision chain capacity.
      */
-    public DialsHeap(final int tableCapacity) {
-        this.table = new DialsHeapNode[tableCapacity];
+    public CachedDialsHeap(final int tableCapacity) {
+        this.table = new CachedDialsHeapNode[tableCapacity];
     }
     
     /**
      * Constructs a heap0 with default collision chain table capacity.
      */
-    public DialsHeap() {
+    public CachedDialsHeap() {
         this(DEFAULT_TABLE_CAPACITY);
     }
     
@@ -187,7 +194,7 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
      */
     @Override
     public Iterator<D> iterator() {
-        return new DialsHeapIterator();
+        return new CachedDialsHeapIterator();
     }
     
     /**
@@ -200,12 +207,14 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
     public void insert(final D datum, final int priority) {
         checkPriority(priority);
         
+        minimumPriority = Math.min(minimumPriority, priority);
+        
         if (mustExpand(priority)) {
             expand(priority);
         }
         
-        final DialsHeapNode<D> newTreeHeapNode =
-                new DialsHeapNode<>(datum, priority);
+        final CachedDialsHeapNode<D> newTreeHeapNode =
+                new CachedDialsHeapNode<>(datum, priority);
         
         nodeMap.put(datum, newTreeHeapNode);
         linkImpl(newTreeHeapNode, priority);
@@ -221,12 +230,15 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
      * @param priority the new priority of {@code datum}. 
      */
     public void updatePriority(final D datum, final int priority) {
+        checkPriority(priority);
+        
+        minimumPriority = Math.min(minimumPriority, priority);
         
         if (mustExpand(priority)) {
             expand(priority);
         }
         
-        final DialsHeapNode<D> node = nodeMap.get(datum);
+        final CachedDialsHeapNode<D> node = nodeMap.get(datum);
         
         unlinkImpl(node);
         linkImpl(node, priority);
@@ -234,12 +246,13 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
     }
     
     /**
-     * Returns the minimal priority throughout the contents of this heap.
+     * Returns the minimal priority throughout the contents of this heap. If 
+     * this heap is empty, {@code -1} is returned.
      * 
      * @return the minimal priority.
      */
     public int minimumPriority() {
-        return accessMinimumPriorityNode().priority;
+        return minimumPriority;
     }
     
     /**
@@ -290,10 +303,15 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
             return null;
         }
         
-        final DialsHeapNode<D> treeNode = accessMinimumPriorityNode();
+        final CachedDialsHeapNode<D> treeNode = accessMinimumPriorityNode();
         
         unlinkImpl(treeNode);
         size--;
+        
+        if (table[minimumPriority] == null) {
+            updateMinimumPriority();
+        }
+        
         return treeNode.datum;
     }
     
@@ -302,7 +320,13 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
      * @param datum 
      */
     public void remove(final D datum) {
-        unlinkImpl(nodeMap.get(datum));
+        final CachedDialsHeapNode<D> node = nodeMap.get(datum);
+        unlinkImpl(node);
+        
+        if (table[node.priority] == null) {
+            updateMinimumPriority();
+        }
+        
         size--;
     }
     
@@ -310,6 +334,7 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
      * Clears all the data from this heap.
      */
     public void clear() {
+        minimumPriority = Integer.MAX_VALUE;
         size = 0;
         nodeMap.clear();
         Arrays.fill(table, null);
@@ -327,9 +352,9 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
     public Object clone() {
         final int maximumPriorityKey = getMaximumPriority();
         final int cloneCapacity = getNextCapacity(maximumPriorityKey);
-        final DialsHeap<D> copy = new DialsHeap<>(cloneCapacity);
+        final CachedDialsHeap<D> copy = new CachedDialsHeap<>(cloneCapacity);
         
-        for (final Map.Entry<D, DialsHeapNode<D>> entry : nodeMap.entrySet()) {
+        for (final Map.Entry<D, CachedDialsHeapNode<D>> entry : nodeMap.entrySet()) {
             copy.insert(entry.getValue().datum, entry.getValue().priority);
         }
         
@@ -350,7 +375,7 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
      * 
      * @return the head of the collision chain with the lowest priority key.
      */
-    private DialsHeapNode<D> accessMinimumPriorityNode() {
+    private CachedDialsHeapNode<D> accessMinimumPriorityNode() {
         for (int p = 0; p != table.length; p++) {
             if (table[p] != null) {
                 return table[p];
@@ -367,8 +392,8 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
      * @param node     the node to link.
      * @param priority the priority key to link with.
      */
-    private void linkImpl(final DialsHeapNode<D> node, final int priority) {
-        final DialsHeapNode<D> currentBucketHead = table[priority];
+    private void linkImpl(final CachedDialsHeapNode<D> node, final int priority) {
+        final CachedDialsHeapNode<D> currentBucketHead = table[priority];
         
         if (currentBucketHead != null) {
             node.next = currentBucketHead;
@@ -383,7 +408,7 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
      * 
      * @param node the node to unlink.
      */
-    private void unlinkImpl(final DialsHeapNode<D> node) {
+    private void unlinkImpl(final CachedDialsHeapNode<D> node) {
         if (node.prev != null) {
             node.prev.next = node.next;
             node.prev = null;
@@ -475,6 +500,20 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
                             "The input priority is negtive (%d).\n",
                             priority));
         }
+    }
+    
+    /**
+     * Updates the minimum priority.
+     */
+    private void updateMinimumPriority() {
+        for (int p = minimumPriority + 1; p < table.length; p++) {
+            if (table[p] != null) {
+                minimumPriority = p;
+                return;
+            }
+        }
+        
+        minimumPriority = -1;
     }
 }
  
