@@ -5,13 +5,13 @@ import com.github.coderodde.util.DialsHeap;
 import com.github.coderodde.util.IntegerMinimumPriorityQueue;
 import java.util.Random;
 
-public final class DialsHeapBenchmark {
+public final class Benchmark {
     
-    private static final int UPPER_BOUND = 10;
-    private static final int ARRAY_LENGTH = 4;
+    private static final int UPPER_BOUND = 1_000_000;
+    private static final int ARRAY_LENGTH = 1_000_000;
     
     public static void main(String[] args) {
-        final long seed = 1715347040913L; //System.currentTimeMillis();
+        final long seed = System.currentTimeMillis();
         System.out.printf("seed = %d.\n", seed);
         
         warmup(seed);
@@ -98,7 +98,6 @@ public final class DialsHeapBenchmark {
         start = System.currentTimeMillis();
         
         while (heap.size() != 0) {
-            System.out.println(heap.size());
             heap.extractMinimum();
         }
         

@@ -281,6 +281,7 @@ public class DialsHeap<D> implements IntegerMinimumPriorityQueue<D> {
         final DialsHeapNode<D> treeNode = accessMinimumPriorityNode();
         
         unlinkImpl(treeNode);
+        nodeMap.remove(treeNode.datum);
         size--;
         return treeNode.datum;
     }
@@ -379,8 +380,8 @@ public class DialsHeap<D> implements IntegerMinimumPriorityQueue<D> {
             // Once here, node.prev == null!
             if (node.next != null) {
                 node.next.prev = null;
-                node.next = null;
                 table[node.priority] = node.next;
+                node.next = null;
             } else {
                 // Remove the last node in the collision chain:
                 table[node.priority] = null;
