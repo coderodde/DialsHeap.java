@@ -158,7 +158,7 @@ public final class CachedDialsHeapTest {
         
         // Make sure all the even numbers are still in the heap:
         for (int i = 0; i <= 10; i += 2) {
-            heap.contains(Integer.toString(i));
+            heap.containsDatum(Integer.toString(i));
         }
     }
 
@@ -174,7 +174,7 @@ public final class CachedDialsHeapTest {
         assertEquals(heap.size(), copy.size());
         
         for (int i = 2; i < 10; i++) {
-            assertTrue(copy.contains(Integer.toString(i)));
+            assertTrue(copy.containsDatum(Integer.toString(i)));
         }
         
         heap.clear();

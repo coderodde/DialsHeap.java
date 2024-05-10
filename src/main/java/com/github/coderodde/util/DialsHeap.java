@@ -14,7 +14,7 @@ import java.util.NoSuchElementException;
  * @version 1.0.0 (May 10, 2024)
  * @since 1.0.0
  */
-public class DialsHeap<D> implements Iterable<D>, Cloneable {
+public class DialsHeap<D> implements IntegerMinimumPriorityQueue<D> {
     
     /**
      * This static inner class implements the node type for this heap.
@@ -191,12 +191,9 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
     }
     
     /**
-     * Inserts a new datum {@code datum} to this heap with the given priority 
-     * {@code priority}.
-     * 
-     * @param datum    the datum to insert.
-     * @param priority the priority key to set.
+     * {@inheritDoc} 
      */
+    @Override
     public void insert(final D datum, final int priority) {
         checkPriority(priority);
         
@@ -213,13 +210,9 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
     }
     
     /**
-     * Updates the priority of the satellite datum {@code datum} to 
-     * {@code priority}. This method can handle both increasing and decreasing 
-     * of the priority key.
-     * 
-     * @param datum    the datum of which priority to update.
-     * @param priority the new priority of {@code datum}. 
+     * {@inheritDoc} 
      */
+    @Override
     public void updatePriority(final D datum, final int priority) {
         
         if (mustExpand(priority)) {
@@ -234,21 +227,17 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
     }
     
     /**
-     * Returns the minimal priority throughout the contents of this heap.
-     * 
-     * @return the minimal priority.
+     * {@inheritDoc} 
      */
+    @Override
     public int minimumPriority() {
         return accessMinimumPriorityNode().priority;
     }
     
     /**
-     * Returns the datum with the lowest priority key, or {@code null} if this
-     * heap is empty.
-     * 
-     * @return the datum with the lowest priority key, or {@code null} if this
-     *         heap is empty.
+     * {@inheritDoc} 
      */
+    @Override
     public D minimumNode() {
         if (size == 0) {
             return null;
@@ -258,33 +247,25 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
     }
     
     /**
-     * Returns {@code true} if the {@code datum} is stored in this heap.
-     * 
-     * @param datum the query datum.
-     * 
-     * @return {@code true} if the {@code datum} is stored in this heap.
+     * {@inheritDoc} 
      */
-    public boolean contains(final D datum) {
+    @Override
+    public boolean containsDatum(final D datum) {
         return nodeMap.containsKey(datum);
     }
     
     /**
-     * Returns the current priority of the input datum.
-     * 
-     * @param datum the datum to query.
-     * @return the current priority of {@code datum}.
+     * {@inheritDoc} 
      */
+    @Override
     public int getPriority(final D datum) {
         return nodeMap.get(datum).priority;
     }
     
     /**
-     * Removes and returns the datum with the lowest priority key, or 
-     * {@code null} if this heap is empty.
-     * 
-     * @return the datum with the lowest priority key, or {@code null} if this 
-     *         heap is empty.
+     * {@inheritDoc} 
      */
+    @Override
     public D extractMinimum() {
         if (size == 0) {
             return null;
@@ -298,17 +279,18 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
     }
     
     /**
-     * Removes the datum {@code datum} from this heap.
-     * @param datum 
+     * {@inheritDoc} 
      */
+    @Override
     public void remove(final D datum) {
         unlinkImpl(nodeMap.get(datum));
         size--;
     }
     
     /**
-     * Clears all the data from this heap.
+     * {@inheritDoc} 
      */
+    @Override
     public void clear() {
         size = 0;
         nodeMap.clear();
@@ -316,12 +298,7 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
     }
     
     /**
-     * Since the heap cannot contract the collision chain table, the remedy to 
-     * do that is to clone it which will return another heap with the same 
-     * content, but with the table as small as is necessary to accommodate also
-     * the maximum priority nodes.
-     * 
-     * @return the clone of this heap.
+     * {@inheritDoc} 
      */
     @Override
     public Object clone() {
@@ -337,10 +314,9 @@ public class DialsHeap<D> implements Iterable<D>, Cloneable {
     }
     
     /**
-     * Returns the number of datums stored in this heap.
-     * 
-     * @return the number of datums stored in this heap.
+     * {@inheritDoc} 
      */
+    @Override
     public int size() {
         return size;
     }
