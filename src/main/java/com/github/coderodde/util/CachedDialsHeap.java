@@ -286,6 +286,7 @@ public class CachedDialsHeap<D> implements IntegerMinimumPriorityQueue<D> {
         final CachedDialsHeapNode<D> treeNode = accessMinimumPriorityNode();
         
         unlinkImpl(treeNode);
+        nodeMap.remove(treeNode.datum);
         size--;
         
         if (table[minimumPriority] == null) {

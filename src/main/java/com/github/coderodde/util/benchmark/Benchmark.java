@@ -3,15 +3,16 @@ package com.github.coderodde.util.benchmark;
 import com.github.coderodde.util.CachedDialsHeap;
 import com.github.coderodde.util.DialsHeap;
 import com.github.coderodde.util.IntegerMinimumPriorityQueue;
+import java.util.Arrays;
 import java.util.Random;
 
 public final class Benchmark {
     
-    private static final int UPPER_BOUND = 1_000_000;
-    private static final int ARRAY_LENGTH = 1_000_000;
+    private static final int UPPER_BOUND = 3;
+    private static final int ARRAY_LENGTH = 3;
     
     public static void main(String[] args) {
-        final long seed = System.currentTimeMillis();
+        final long seed = 13L;//System.currentTimeMillis();
         System.out.printf("seed = %d.\n", seed);
         
         warmup(seed);
@@ -31,20 +32,31 @@ public final class Benchmark {
     }
     
     private static void benchmark(final long seed) {
-        runBenchmark(
-                new DialsHeap<>(), 
-                seed, 
-                true);
+        final int[] output1 = 
+                runBenchmark(
+                        new DialsHeap<>(), 
+                        seed, 
+                        true);
         
         System.out.println();
         
-        runBenchmark(
-                new CachedDialsHeap<>(), 
-                seed, 
-                true);
+        final int[] output2 = 
+                runBenchmark(
+                        new CachedDialsHeap<>(), 
+                        seed, 
+                        true);
+        
+        System.out.println();
+        System.out.printf(
+                "Heaps agree: %b.\n", 
+                Arrays.equals(output1, 
+                              output2));
+        
+        System.out.printf("DH : %s.\n", Arrays.toString(output1));
+        System.out.printf("CDH: %s.\n", Arrays.toString(output2));
     }
     
-    private static void runBenchmark(
+    private static int[] runBenchmark(
             final IntegerMinimumPriorityQueue<Integer> heap,
             final long seed,
             final boolean print) {
@@ -95,9 +107,14 @@ public final class Benchmark {
                     end - start);
         }
         
+        final int[] output = new int[heap.size()];
+        int index = 0;
+        
         start = System.currentTimeMillis();
         
         while (heap.size() != 0) {
+            final int priority = heap.minimumPriority();
+            output[index++] = priority;
             heap.extractMinimum();
         }
         
@@ -115,6 +132,8 @@ public final class Benchmark {
                     heap.getClass().getSimpleName(), 
                     totalDuration);
         }
+        
+        return output;
     }
     
     private static Integer[] 
