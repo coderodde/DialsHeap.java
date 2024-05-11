@@ -8,11 +8,11 @@ import java.util.Random;
 
 public final class Benchmark {
     
-    private static final int UPPER_BOUND = 3;
-    private static final int ARRAY_LENGTH = 3;
+    private static final int UPPER_BOUND = 1_000_000;
+    private static final int ARRAY_LENGTH = 10_000_000;
     
     public static void main(String[] args) {
-        final long seed = 13L;//System.currentTimeMillis();
+        final long seed = System.currentTimeMillis();
         System.out.printf("seed = %d.\n", seed);
         
         warmup(seed);
@@ -32,7 +32,7 @@ public final class Benchmark {
     }
     
     private static void benchmark(final long seed) {
-        final int[] output1 = 
+        final Integer[] output1 = 
                 runBenchmark(
                         new DialsHeap<>(), 
                         seed, 
@@ -40,7 +40,7 @@ public final class Benchmark {
         
         System.out.println();
         
-        final int[] output2 = 
+        final Integer[] output2 = 
                 runBenchmark(
                         new CachedDialsHeap<>(), 
                         seed, 
@@ -51,12 +51,9 @@ public final class Benchmark {
                 "Heaps agree: %b.\n", 
                 Arrays.equals(output1, 
                               output2));
-        
-        System.out.printf("DH : %s.\n", Arrays.toString(output1));
-        System.out.printf("CDH: %s.\n", Arrays.toString(output2));
     }
     
-    private static int[] runBenchmark(
+    private static Integer[] runBenchmark(
             final IntegerMinimumPriorityQueue<Integer> heap,
             final long seed,
             final boolean print) {
@@ -107,15 +104,13 @@ public final class Benchmark {
                     end - start);
         }
         
-        final int[] output = new int[heap.size()];
+        final Integer[] output = new Integer[heap.size()];
         int index = 0;
         
         start = System.currentTimeMillis();
         
         while (heap.size() != 0) {
-            final int priority = heap.minimumPriority();
-            output[index++] = priority;
-            heap.extractMinimum();
+            output[index++] = heap.extractMinimum();
         }
         
         end = System.currentTimeMillis();

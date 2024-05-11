@@ -202,6 +202,12 @@ public class CachedDialsHeap<D> implements IntegerMinimumPriorityQueue<D> {
      */
     @Override
     public void insert(final D datum, final int priority) {
+        if (nodeMap.containsKey(datum)) {
+            // Once here, the input datum is already in this heap. Use 
+            // updatePriority for adjusting the priority key.
+            return;
+        }
+        
         checkPriority(priority);
         
         minimumPriority = Math.min(minimumPriority, priority);
