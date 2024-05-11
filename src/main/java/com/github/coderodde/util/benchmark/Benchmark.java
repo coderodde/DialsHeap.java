@@ -6,11 +6,29 @@ import com.github.coderodde.util.IntegerMinimumPriorityQueue;
 import java.util.Arrays;
 import java.util.Random;
 
+/**
+ * This class implements the benchmark program for the priority queues.
+ * 
+ * @version 1.0.0 (May 11, 2024)
+ * @since 1.0.0 (May 11, 2024)
+ */
 public final class Benchmark {
     
+    /**
+     * The upper bound value for the randomly generated integers.
+     */
     private static final int UPPER_BOUND = 1_000_000;
+    
+    /**
+     * The benchmarking array lengths.
+     */
     private static final int ARRAY_LENGTH = 10_000_000;
     
+    /**
+     * The entry point of the benchmark.
+     * 
+     * @param args the command line arguments.
+     */
     public static void main(String[] args) {
         final long seed = System.currentTimeMillis();
         System.out.printf("seed = %d.\n", seed);
@@ -19,6 +37,11 @@ public final class Benchmark {
         benchmark(seed);
     }
     
+    /**
+     * Warms up the benchmark.
+     * 
+     * @param seed the random number generator seed. 
+     */
     private static void warmup(final long seed) {
         runBenchmark(
                 new DialsHeap<>(),
@@ -31,6 +54,11 @@ public final class Benchmark {
                 false);
     }
     
+    /**
+     * Benchmarks the heaps.
+     * 
+     * @param seed the random number generator seed.
+     */
     private static void benchmark(final long seed) {
         final Integer[] output1 = 
                 runBenchmark(
@@ -53,6 +81,16 @@ public final class Benchmark {
                               output2));
     }
     
+    /**
+     * Implements the benchmark/warmup runner.
+     * 
+     * @param heap  the heap to benchmark.
+     * @param seed  the random number generator seed.
+     * @param print the flag specifying whether to print the intermediate 
+     *              results.
+     * 
+     * @return the processed data.
+     */
     private static Integer[] runBenchmark(
             final IntegerMinimumPriorityQueue<Integer> heap,
             final long seed,
@@ -131,6 +169,16 @@ public final class Benchmark {
         return output;
     }
     
+    /**
+     * Returns the random array of {@code Integer}s. Each integer is drawn from 
+     * the range {@code [0, upperBound - 1]}.
+     * 
+     * @param random     the random number generator.
+     * @param length     the length of the generated array.
+     * @param upperBound the upper bound of the integer values.
+     * 
+     * @return the random integer array.
+     */
     private static Integer[] 
         getRandomIntegerArray(
                 final Random random,
@@ -146,6 +194,16 @@ public final class Benchmark {
         return array;
     }
     
+    /**
+     * Returns the random array of {@code int}s. Each integer is drawn from 
+     * the range {@code [0, upperBound - 1]}.
+     * 
+     * @param random     the random number generator.
+     * @param length     the length of the generated array.
+     * @param upperBound the upper bound of the integer values.
+     * 
+     * @return the random integer array.
+     */
     private static int[] 
         getRandomIntArray(
                 final Random random,

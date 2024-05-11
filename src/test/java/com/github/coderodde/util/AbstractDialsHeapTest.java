@@ -198,4 +198,13 @@ public abstract class AbstractDialsHeapTest {
     public void testCanExpand() {
         heap.insert("A", 1000);
     }
+    
+    @Test
+    public void testIsEmpty() {
+        assertTrue(heap.isEmpty());
+        
+        heap.insert("A", 1);
+        
+        assertFalse(heap.isEmpty());
+    }
 }

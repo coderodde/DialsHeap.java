@@ -353,6 +353,14 @@ public class CachedDialsHeap<D> implements IntegerMinimumPriorityQueue<D> {
     }
     
     /**
+     * {@inheritDoc } 
+     */
+    @Override
+    public boolean isEmpty() {
+        return size == 0;
+    }
+    
+    /**
      * Returns the head of the collision chain with the lowest priority key.
      * 
      * @return the head of the collision chain with the lowest priority key.

@@ -101,4 +101,11 @@ public interface IntegerMinimumPriorityQueue<D> extends Iterable<D>, Cloneable {
      * @return the number of datums stored in this heap.
      */
     public int size();
+    
+    /**
+     * Returns {@code true} if this heap is empty.
+     * 
+     * @return {@code true} if this heap is empty.
+     */
+    public boolean isEmpty();
 }
