@@ -9,7 +9,7 @@ import java.util.Random;
 /**
  * This class implements the benchmark program for the priority queues.
  * 
- * @version 1.0.0 (May 11, 2024)
+ * @version 1.0.1 (May 12, 2024)
  * @since 1.0.0 (May 11, 2024)
  */
 public final class Benchmark {
@@ -17,12 +17,12 @@ public final class Benchmark {
     /**
      * The upper bound value for the randomly generated integers.
      */
-    private static final int UPPER_BOUND = 1_000_000;
+    private static final int UPPER_BOUND = 10_000;
     
     /**
      * The benchmarking array lengths.
      */
-    private static final int ARRAY_LENGTH = 10_000_000;
+    private static final int ARRAY_LENGTH = 1_000_000;
     
     /**
      * The entry point of the benchmark.

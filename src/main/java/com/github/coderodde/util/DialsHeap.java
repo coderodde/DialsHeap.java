@@ -11,8 +11,8 @@ import java.util.NoSuchElementException;
  * 
  * @param <D> the type of the satellite data.
  * 
- * @version 1.0.0 (May 10, 2024)
- * @since 1.0.0
+ * @version 1.0.1 (May 12, 2024)
+ * @since 1.0.0 (May 10, 2024)
  */
 public class DialsHeap<D> implements IntegerMinimumPriorityQueue<D> {
     
@@ -94,7 +94,7 @@ public class DialsHeap<D> implements IntegerMinimumPriorityQueue<D> {
          */
         @Override
         public boolean hasNext() {
-            return iterated < size;
+            return iterated < nodeMap.size();
         }
 
         /**
@@ -118,7 +118,7 @@ public class DialsHeap<D> implements IntegerMinimumPriorityQueue<D> {
          * @return the next heap node in the iteration order.
          */
         private DialsHeapNode<D> computeNextDialsHeapNode() {
-            if (iterated == size) {
+            if (iterated == nodeMap.size()) {
                 // Once here, iteration is complete.
                 return null;
             }
@@ -159,11 +159,6 @@ public class DialsHeap<D> implements IntegerMinimumPriorityQueue<D> {
      * The map mapping the satellite datums to their respective heap nodes.
      */
     private final Map<D, DialsHeapNode<D>> nodeMap = new HashMap<>();
-    
-    /**
-     * Caches the number of satellite datums in this heap.
-     */
-    private int size = 0;
     
     /**
      * Constructs a heap with {@code tableCapacity} as the capacity of the 
@@ -208,12 +203,10 @@ public class DialsHeap<D> implements IntegerMinimumPriorityQueue<D> {
             expand(priority);
         }
         
-        final DialsHeapNode<D> newTreeHeapNode =
-                new DialsHeapNode<>(datum, priority);
+        final DialsHeapNode<D> node = new DialsHeapNode<>(datum, priority);
         
-        nodeMap.put(datum, newTreeHeapNode);
-        linkImpl(newTreeHeapNode, priority);
-        size++;
+        nodeMap.put(datum, node);
+        linkImpl(node, priority);
     }
     
     /**
@@ -246,7 +239,7 @@ public class DialsHeap<D> implements IntegerMinimumPriorityQueue<D> {
      */
     @Override
     public D minimumNode() {
-        if (size == 0) {
+        if (nodeMap.isEmpty()) {
             return null;
         }
         
@@ -274,16 +267,15 @@ public class DialsHeap<D> implements IntegerMinimumPriorityQueue<D> {
      */
     @Override
     public D extractMinimum() {
-        if (size == 0) {
+        if (nodeMap.isEmpty()) {
             return null;
         }
         
-        final DialsHeapNode<D> treeNode = accessMinimumPriorityNode();
+        final DialsHeapNode<D> node = accessMinimumPriorityNode();
         
-        unlinkImpl(treeNode);
-        nodeMap.remove(treeNode.datum);
-        size--;
-        return treeNode.datum;
+        unlinkImpl(node);
+        nodeMap.remove(node.datum);
+        return node.datum;
     }
     
     /**
@@ -292,7 +284,6 @@ public class DialsHeap<D> implements IntegerMinimumPriorityQueue<D> {
     @Override
     public void remove(final D datum) {
         unlinkImpl(nodeMap.get(datum));
-        size--;
     }
     
     /**
@@ -300,7 +291,6 @@ public class DialsHeap<D> implements IntegerMinimumPriorityQueue<D> {
      */
     @Override
     public void clear() {
-        size = 0;
         nodeMap.clear();
         Arrays.fill(table, null);
     }
@@ -326,7 +316,7 @@ public class DialsHeap<D> implements IntegerMinimumPriorityQueue<D> {
      */
     @Override
     public int size() {
-        return size;
+        return nodeMap.size();
     }
     
     /**
@@ -334,7 +324,7 @@ public class DialsHeap<D> implements IntegerMinimumPriorityQueue<D> {
      */
     @Override
     public boolean isEmpty() {
-        return size == 0;
+        return nodeMap.isEmpty();
     }
     
     /**
@@ -378,12 +368,13 @@ public class DialsHeap<D> implements IntegerMinimumPriorityQueue<D> {
     private void unlinkImpl(final DialsHeapNode<D> node) {
         if (node.prev != null) {
             node.prev.next = node.next;
-            node.prev = null;
             
             if (node.next != null) {
                 node.next.prev = node.prev;
                 node.next = null;
             }
+            
+            node.prev = null;
         } else {
             // Once here, node.prev == null!
             if (node.next != null) {
