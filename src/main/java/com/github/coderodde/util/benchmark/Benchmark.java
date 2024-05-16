@@ -17,7 +17,7 @@ public final class Benchmark {
     /**
      * The upper bound value for the randomly generated integers.
      */
-    private static final int UPPER_BOUND = 10_000;
+    private static final int UPPER_BOUND = 100_000;
     
     /**
      * The benchmarking array lengths.
